@@ -99,11 +99,10 @@ if st.sidebar.button("Generate Investment Plan"):
     }
     
     X_input = pd.DataFrame([user_data], columns=expected_features)
-    st.write("User Input Data (Before Scaling):", X_input)
+   
 
     if scaler:
         X_input_scaled = scaler.transform(X_input)
-        st.write("User Input Data (After Scaling):", X_input_scaled)
     else:
         st.error("Scaler is missing. Please retrain and save it.")
         X_input_scaled = X_input  # Fallback to raw data
