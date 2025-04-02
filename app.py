@@ -6,11 +6,20 @@ import yfinance as yf
 import requests
 from bs4 import BeautifulSoup
 from sklearn.preprocessing import MinMaxScaler
+import os
 
 def load_models():
     stage1_model = joblib.load("stage1_gbm.pkl")
     stage2_model = joblib.load("stage2_gbm.pkl")
-    scaler = joblib.load("scaler.pkl")  # Load the same scaler used in training
+    
+    # Load the scaler if available
+    scaler_path = "scaler.pkl"
+    if os.path.exists(scaler_path):
+        scaler = joblib.load(scaler_path)
+    else:
+        st.error("Missing scaler.pkl. Please retrain and save the MinMaxScaler.")
+        scaler = None
+    
     return stage1_model, stage2_model, scaler
 
 stage1_model, stage2_model, scaler = load_models()
@@ -44,7 +53,7 @@ def get_mutual_fund_data():
             })
     return pd.DataFrame(mf_data)
 
-def recommend_products(df, risk_tolerance, top_n=3):
+def recommend_products(df, allocation, risk_tolerance, top_n=3):
     df_filtered = df[df["Risk_Level"] == risk_tolerance]
     return df_filtered.sort_values(by='Expected_Return (%)', ascending=False).head(top_n)
 
@@ -59,31 +68,44 @@ risk_tolerance = st.sidebar.selectbox("Risk Tolerance", ["Low", "Medium", "High"
 investment_experience = st.sidebar.selectbox("Investment Experience", ["Beginner", "Intermediate", "Advanced"])
 
 if st.sidebar.button("Generate Investment Plan"):
+    expected_features = [
+        'Mthly_HH_Income', 'Mthly_HH_Expense', 'Emi_or_Rent_Amt',
+        'No_of_Earning_Members', 'Savings_Amount', 'Investment_Horizon',
+        'Risk_Tolerance', 'Investment_Experience', 'Market_Volatility_Tolerance',
+        'Short_Term_Goal', 'Mid_Term_Goal', 'Long_Term_Goal', 'Goal_Based_Investing',
+        'Preferred_Investment_Type', 'Adjusted_DTI', 'Savings_Rate', 
+        'Disposable_Income', 'Debt_to_Income_Ratio'
+    ]
+    
     user_data = {
         'Mthly_HH_Income': income,
-        'Mthly_HH_Expense': income * 0.4,
-        'Emi_or_Rent_Amt': income * 0.2,
-        'No_of_Earning_Members': 2,
+        'Mthly_HH_Expense': income * 0.4,  # Example assumption
+        'Emi_or_Rent_Amt': income * 0.2,  # Example assumption
+        'No_of_Earning_Members': 2,  # Placeholder
         'Savings_Amount': savings,
-        'Investment_Horizon': {"Short": 1, "Medium": 2, "Long": 3}[investment_horizon],
-        'Risk_Tolerance': {"Low": 1, "Medium": 2, "High": 3}[risk_tolerance],
-        'Investment_Experience': {"Beginner": 1, "Intermediate": 2, "Advanced": 3}[investment_experience],
-        'Market_Volatility_Tolerance': 3,
+        'Investment_Horizon': 5,  # Example assumption
+        'Risk_Tolerance': 3,  # Example assumption
+        'Investment_Experience': 2,  # Example assumption
+        'Market_Volatility_Tolerance': 4,  # Example assumption
         'Short_Term_Goal': 1,
         'Mid_Term_Goal': 1,
         'Long_Term_Goal': 1,
         'Goal_Based_Investing': 1,
-        'Preferred_Investment_Type': 2,
+        'Preferred_Investment_Type': 2,  # Example assumption
         'Adjusted_DTI': debt_ratio / 100,
-        'Savings_Rate': savings / income,
+        'Savings_Rate': savings / income if income > 0 else 0,
         'Disposable_Income': income - (income * 0.4) - (income * 0.2),
         'Debt_to_Income_Ratio': debt_ratio / 100
     }
-
-    expected_features = list(user_data.keys())
+    
     X_input = pd.DataFrame([user_data], columns=expected_features)
-    X_input_scaled = scaler.transform(X_input)
-
+    
+    if scaler:
+        X_input_scaled = scaler.transform(X_input)
+    else:
+        st.error("Scaler is missing. Please retrain and save it.")
+        X_input_scaled = X_input  # Fallback to raw data
+    
     invest_percentage = stage1_model.predict(X_input_scaled)[0]
     allocation = stage2_model.predict(X_input_scaled)[0]
     
@@ -93,8 +115,8 @@ if st.sidebar.button("Generate Investment Plan"):
     
     st.subheader("📈 Recommended Stocks")
     stocks_df = get_stock_data()
-    st.dataframe(recommend_products(stocks_df, risk_tolerance))
+    st.dataframe(recommend_products(stocks_df, allocation[0], risk_tolerance))
     
     st.subheader("📊 Recommended Mutual Funds")
     mf_df = get_mutual_fund_data()
-    st.dataframe(recommend_products(mf_df, risk_tolerance))
+    st.dataframe(recommend_products(mf_df, allocation[2], risk_tolerance))
