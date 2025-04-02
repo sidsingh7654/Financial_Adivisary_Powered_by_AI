@@ -104,11 +104,11 @@ if st.sidebar.button("Generate Investment Plan"):
     X_input = pd.DataFrame([user_data], columns=expected_features)
    
 
-    if scaler:
-        X_input_scaled = scaler.transform(X_input)
-    else:
-        st.error("Scaler is missing. Please retrain and save it.")
-        X_input_scaled = X_input  # Fallback to raw data
+    expected_features = scaler.feature_names_in_  # Get the correct feature order
+    X_input = X_input[expected_features]  # Reorder columns
+
+    # Transform input using the scaler
+    X_input_scaled = scaler.transform(X_input)
     
     invest_percentage = stage1_model.predict(X_input_scaled)[0]
     allocation = stage2_model.predict(X_input_scaled)[0]
