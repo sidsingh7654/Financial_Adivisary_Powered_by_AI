@@ -90,7 +90,14 @@ if st.sidebar.button("Generate Investment Plan"):
 
     # Convert user input into a DataFrame with correct columns
     X_input = pd.DataFrame([user_data], columns=expected_features)
+    from sklearn.preprocessing import MinMaxScaler
+    import pandas as pd
 
+    # Ensure scaler is defined
+    scaler = MinMaxScaler()
+
+    # Assuming you have training data (X_train) from when the model was trained
+    scaler.fit(X_train)  # Fit the scaler on the training data
     # Apply Min-Max Scaling (use the same scaler from training)
     X_input_scaled = scaler.transform(X_input)
 
