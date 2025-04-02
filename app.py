@@ -149,7 +149,7 @@ if st.sidebar.button("Generate Investment Plan"):
         st.success("✅ Data successfully scaled!")
 
         st.success("✅ Data successfully scaled!")
-        except Exception as e:
+    except Exception as e:
         st.error(f"❌ Error during scaling: {e}")
         st.stop()
 
