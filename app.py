@@ -12,14 +12,7 @@ def load_models():
     stage1_model = joblib.load("stage1_gbm.pkl")
     stage2_model = joblib.load("stage2_gbm.pkl")
     scaler = joblib.load("scaler.pkl")
-    # Load the scaler if available
-    scaler_path = "scaler.pkl"
-    if os.path.exists(scaler_path):
-        scaler = joblib.load(scaler_path)
-    else:
-        st.error("Missing scaler.pkl. Please retrain and save the MinMaxScaler.")
-        scaler = None
-    
+    # Check if the scaler has the correct feature names
     return stage1_model, stage2_model, scaler
 
 stage1_model, stage2_model, scaler = load_models()
@@ -106,6 +99,9 @@ if st.sidebar.button("Generate Investment Plan"):
 
     expected_features = scaler.feature_names_in_  # Get the correct feature order
     X_input = X_input[expected_features]  # Reorder columns
+    print("\n📝 X_input DataFrame before scaling:\n", X_input)
+    print("\n📌 Data Types:\n", X_input.dtypes)
+    print("\n🔍 Any NaN values?:\n", X_input.isnull().sum())
 
     # Transform input using the scaler
     X_input_scaled = scaler.transform(X_input)
