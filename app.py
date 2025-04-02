@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from sklearn.preprocessing import MinMaxScaler
 import os
+import requests
 import random
 def load_models():
     stage1_model = joblib.load("stage1_gbm.pkl")
@@ -68,20 +69,39 @@ def get_random_stocks(n=5, risk_tolerance="Medium", investment_experience="Inter
 
     return pd.DataFrame(stock_data)
 
-def get_mutual_fund_data():
+def get_random_mutual_funds(n=5, risk_tolerance="Medium", investment_experience="Intermediate", investment_type="Mutual Fund"):
     response = requests.get("https://www.amfiindia.com/spages/NAVAll.txt")
     data = response.text
-    mf_data = []
+    mf_universe = []
+
     for line in data.split("\n"):
         tokens = line.strip().split(";")
         if len(tokens) > 5:
-            mf_data.append({
-                "Product_Name": tokens[3],
-                "Expected_Return (%)": 8,  # Placeholder
-                "Risk_Level": "Medium",
-                "Volatility_Level": "Medium"
+            scheme_name = tokens[3]
+            # Example Risk Classification (You can improve this with actual categories)
+            risk_level = (
+                "Low" if "Debt" in scheme_name else 
+                "High" if "Equity" in scheme_name else 
+                "Medium"
+            )
+            mf_universe.append({
+                "Product_Name": scheme_name,
+                "Expected_Return (%)": random.uniform(7, 15),  # Placeholder with random returns
+                "Risk_Level": risk_level,
+                "Volatility_Level": "High" if risk_level == "High" else "Medium"
             })
-    return pd.DataFrame(mf_data)
+
+    # Filter funds based on risk tolerance
+    filtered_mfs = [mf for mf in mf_universe if mf["Risk_Level"] == risk_tolerance]
+
+    # If not enough funds match the criteria, expand the selection
+    if len(filtered_mfs) < n:
+        filtered_mfs = mf_universe  # Use all funds as fallback
+
+    # Select random mutual funds
+    selected_mfs = random.sample(filtered_mfs, min(n, len(filtered_mfs)))
+
+    return pd.DataFrame(selected_mfs)
 
 def recommend_products(df, allocation, risk_tolerance, top_n=3):
     df_filtered = df[df["Risk_Level"] == risk_tolerance]
@@ -194,10 +214,8 @@ if st.sidebar.button("Generate Investment Plan"):
     
     st.subheader("📈 Recommended Stocks")
 
-    sstocks_df = get_random_stocks(n=5, risk_tolerance="High", investment_experience="Advanced", investment_type="Equity")
-
-
-    mf_df = get_mutual_fund_data()
+    stocks_df = get_random_stocks(n=5, risk_tolerance="High", investment_experience="Advanced", investment_type="Equity")
+    mf_df = get_random_mutual_funds(n=5, risk_tolerance="High", investment_experience="Advanced", investment_type="Mutual Fund")
     st.write("Fetched Stock Data:", stocks_df)
     st.write("Fetched Mutual Fund Data:", mf_df)
     recommended_stocks = recommend_products(stocks_df, allocation[0], risk_tolerance)
