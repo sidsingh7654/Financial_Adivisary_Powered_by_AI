@@ -5,13 +5,15 @@ import joblib
 import yfinance as yf
 import requests
 from bs4 import BeautifulSoup
+from sklearn.preprocessing import MinMaxScaler
 
 def load_models():
     stage1_model = joblib.load("stage1_gbm.pkl")
     stage2_model = joblib.load("stage2_gbm.pkl")
-    return stage1_model, stage2_model
+    scaler = joblib.load("scaler.pkl")  # Load the same scaler used in training
+    return stage1_model, stage2_model, scaler
 
-stage1_model, stage2_model = load_models()
+stage1_model, stage2_model, scaler = load_models()
 
 def get_stock_data():
     stock_list = ["RELIANCE.NS", "INFY.NS", "TCS.NS", "HDFCBANK.NS", "BAJFINANCE.NS"]
@@ -42,11 +44,11 @@ def get_mutual_fund_data():
             })
     return pd.DataFrame(mf_data)
 
-def recommend_products(df, allocation, risk_tolerance, top_n=3):
+def recommend_products(df, risk_tolerance, top_n=3):
     df_filtered = df[df["Risk_Level"] == risk_tolerance]
     return df_filtered.sort_values(by='Expected_Return (%)', ascending=False).head(top_n)
 
-st.title("Financial_Adivisary_Powered_by_AI")
+st.title("Financial Advisory Powered by AI")
 st.sidebar.header("User Financial Input")
 
 income = st.sidebar.number_input("Monthly Household Income ($)", min_value=1000, step=100)
@@ -57,57 +59,33 @@ risk_tolerance = st.sidebar.selectbox("Risk Tolerance", ["Low", "Medium", "High"
 investment_experience = st.sidebar.selectbox("Investment Experience", ["Beginner", "Intermediate", "Advanced"])
 
 if st.sidebar.button("Generate Investment Plan"):
-    # Ensure `X_input` has the correct feature names and order
-    expected_features = [
-        'Mthly_HH_Income', 'Mthly_HH_Expense', 'Emi_or_Rent_Amt',
-        'No_of_Earning_Members', 'Savings_Amount', 'Investment_Horizon',
-        'Risk_Tolerance', 'Investment_Experience', 'Market_Volatility_Tolerance',
-        'Short_Term_Goal', 'Mid_Term_Goal', 'Long_Term_Goal', 'Goal_Based_Investing',
-        'Preferred_Investment_Type', 'Adjusted_DTI', 'Savings_Rate', 
-        'Disposable_Income', 'Debt_to_Income_Ratio'
-    ]
-    # Example user input (should be a dictionary with correct keys)
     user_data = {
-        'Mthly_HH_Income': 50000,
-        'Mthly_HH_Expense': 20000,
-        'Emi_or_Rent_Amt': 5000,
+        'Mthly_HH_Income': income,
+        'Mthly_HH_Expense': income * 0.4,
+        'Emi_or_Rent_Amt': income * 0.2,
         'No_of_Earning_Members': 2,
-        'Savings_Amount': 10000,
-        'Investment_Horizon': 5,
-        'Risk_Tolerance': 3,
-        'Investment_Experience': 2,
-        'Market_Volatility_Tolerance': 4,
+        'Savings_Amount': savings,
+        'Investment_Horizon': {"Short": 1, "Medium": 2, "Long": 3}[investment_horizon],
+        'Risk_Tolerance': {"Low": 1, "Medium": 2, "High": 3}[risk_tolerance],
+        'Investment_Experience': {"Beginner": 1, "Intermediate": 2, "Advanced": 3}[investment_experience],
+        'Market_Volatility_Tolerance': 3,
         'Short_Term_Goal': 1,
         'Mid_Term_Goal': 1,
         'Long_Term_Goal': 1,
         'Goal_Based_Investing': 1,
         'Preferred_Investment_Type': 2,
-        'Adjusted_DTI': 0.4,
-        'Savings_Rate': 0.2,
-        'Disposable_Income': 30000,
-        'Debt_to_Income_Ratio': 0.25
+        'Adjusted_DTI': debt_ratio / 100,
+        'Savings_Rate': savings / income,
+        'Disposable_Income': income - (income * 0.4) - (income * 0.2),
+        'Debt_to_Income_Ratio': debt_ratio / 100
     }
 
-    # Convert user input into a DataFrame with correct columns
+    expected_features = list(user_data.keys())
     X_input = pd.DataFrame([user_data], columns=expected_features)
-    from sklearn.preprocessing import MinMaxScaler
-    import pandas as pd
-
-    # Ensure scaler is defined
-    scaler = MinMaxScaler()
-
-    # Assuming you have training data (X_train) from when the model was trained
-    scaler.fit(X_train)  # Fit the scaler on the training data
-    # Apply Min-Max Scaling (use the same scaler from training)
     X_input_scaled = scaler.transform(X_input)
 
-    # Debugging: Print input shape & features
-    print("Model expects:", stage1_model.n_features_in_)  # Expected feature count
-    print("Input shape:", X_input_scaled.shape)  # Actual input shape
-    print("Missing columns:", set(expected_features) - set(X_input.columns))
-    print("Extra columns:", set(X_input.columns) - set(expected_features))
-    invest_percentage = stage1_model.predict(X_input)[0]
-    allocation = stage2_model.predict(X_input)[0]
+    invest_percentage = stage1_model.predict(X_input_scaled)[0]
+    allocation = stage2_model.predict(X_input_scaled)[0]
     
     st.subheader("📌 Investment Allocation")
     st.write(f"Recommended Investment: {invest_percentage:.2f}% of Savings")
@@ -115,8 +93,8 @@ if st.sidebar.button("Generate Investment Plan"):
     
     st.subheader("📈 Recommended Stocks")
     stocks_df = get_stock_data()
-    st.dataframe(recommend_products(stocks_df, allocation[0], risk_tolerance))
+    st.dataframe(recommend_products(stocks_df, risk_tolerance))
     
     st.subheader("📊 Recommended Mutual Funds")
     mf_df = get_mutual_fund_data()
-    st.dataframe(recommend_products(mf_df, allocation[2], risk_tolerance))
+    st.dataframe(recommend_products(mf_df, risk_tolerance))
