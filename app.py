@@ -102,7 +102,13 @@ if st.sidebar.button("Generate Investment Plan"):
     
     X_input = pd.DataFrame([user_data], columns=expected_features)
    
+        if scaler is None:
+        st.error("Scaler is missing. Please retrain and save it.")
+        else:
+        st.write("Scaler is loaded successfully.")
 
+        st.write("Expected features from scaler:", scaler.feature_names_in_)
+        st.write("Columns in X_input:", X_input.columns.tolist())
     if scaler:
         X_input_scaled = scaler.transform(X_input)
     else:
@@ -126,7 +132,8 @@ if st.sidebar.button("Generate Investment Plan"):
     st.write("Fetched Mutual Fund Data:", mf_df)
     recommended_stocks = recommend_products(stocks_df, allocation[0], risk_tolerance)
     recommended_mf = recommend_products(mf_df, allocation[2], risk_tolerance)
-   
+
     
+
     
     
