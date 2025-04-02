@@ -66,6 +66,27 @@ if st.sidebar.button("Generate Investment Plan"):
         'Preferred_Investment_Type', 'Adjusted_DTI', 'Savings_Rate', 
         'Disposable_Income', 'Debt_to_Income_Ratio'
     ]
+    # Example user input (should be a dictionary with correct keys)
+    user_data = {
+        'Mthly_HH_Income': 50000,
+        'Mthly_HH_Expense': 20000,
+        'Emi_or_Rent_Amt': 5000,
+        'No_of_Earning_Members': 2,
+        'Savings_Amount': 10000,
+        'Investment_Horizon': 5,
+        'Risk_Tolerance': 3,
+        'Investment_Experience': 2,
+        'Market_Volatility_Tolerance': 4,
+        'Short_Term_Goal': 1,
+        'Mid_Term_Goal': 1,
+        'Long_Term_Goal': 1,
+        'Goal_Based_Investing': 1,
+        'Preferred_Investment_Type': 2,
+        'Adjusted_DTI': 0.4,
+        'Savings_Rate': 0.2,
+        'Disposable_Income': 30000,
+        'Debt_to_Income_Ratio': 0.25
+    }
 
     # Convert user input into a DataFrame with correct columns
     X_input = pd.DataFrame([user_data], columns=expected_features)
