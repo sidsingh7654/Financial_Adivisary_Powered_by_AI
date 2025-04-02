@@ -123,9 +123,8 @@ if st.sidebar.button("Generate Investment Plan"):
     st.write("Fetched Stock Data:", stocks_df)
     st.write("Fetched Mutual Fund Data:", mf_df)
     recommended_stocks = recommend_products(stocks_df, allocation[0], risk_tolerance)
-    st.write("Recommended Stocks:", recommended_stocks)
     recommended_mf = recommend_products(mf_df, allocation[2], risk_tolerance)
-    st.write("Recommended Mutual Funds:", recommended_mf)
+   
     
     
     
