@@ -60,12 +60,14 @@ def recommend_products(df, allocation, risk_tolerance, top_n=3):
 st.title("Financial Advisory Powered by AI")
 st.sidebar.header("User Financial Input")
 
-income = st.sidebar.number_input("Monthly Household Income ($)", min_value=1000, step=100)
-savings = st.sidebar.number_input("Monthly Savings ($)", min_value=100, step=50)
+income = st.sidebar.number_input("Monthly Household Income (Rs.)", min_value=1000, step=100)
+expense = st.sidebar.number_input("Monthly Expense (Rs.)", min_value=100, step=50)
+EMI_or_Rent_Amt = st.sidebar.number_input("Monthly EMI/Rent Amount (Rs.)", min_value=0, step=50)    
 debt_ratio = st.sidebar.slider("Debt-to-Income Ratio (%)", 0, 100, 30)
 investment_horizon = st.sidebar.selectbox("Investment Horizon", ["Short", "Medium", "Long"])
 risk_tolerance = st.sidebar.selectbox("Risk Tolerance", ["Low", "Medium", "High"])
 investment_experience = st.sidebar.selectbox("Investment Experience", ["Beginner", "Intermediate", "Advanced"])
+Preferred_Investment_Type = st.sidebar.selectbox("Preferred Investment Type", ["Equity", "Mutual Fund", "Debt", "Gold", "Real Estate"])
 
 if st.sidebar.button("Generate Investment Plan"):
     expected_features = [
@@ -79,22 +81,22 @@ if st.sidebar.button("Generate Investment Plan"):
     
     user_data = {
         'Mthly_HH_Income': income,
-        'Mthly_HH_Expense': income * 0.4,  # Example assumption
-        'Emi_or_Rent_Amt': income * 0.2,  # Example assumption
+        'Mthly_HH_Expense': expense,  # Example assumption
+        'Emi_or_Rent_Amt': EMI_or_Rent_Amt,  # Example assumption
         'No_of_Earning_Members': 2,  # Placeholder
-        'Savings_Amount': savings,
-        'Investment_Horizon': 5,  # Example assumption
-        'Risk_Tolerance': 3,  # Example assumption
-        'Investment_Experience': 2,  # Example assumption
+        'Savings_Amount': income - expense - EMI_or_Rent_Amt,  # Example assumption
+        'Investment_Horizon': investment_horizon,  # Example assumption
+        'Risk_Tolerance': risk_tolerance,  # Example assumption
+        'Investment_Experience': investment_experience,  # Example assumption
         'Market_Volatility_Tolerance': 4,  # Example assumption
         'Short_Term_Goal': 1,
         'Mid_Term_Goal': 1,
         'Long_Term_Goal': 1,
         'Goal_Based_Investing': 1,
-        'Preferred_Investment_Type': 2,  # Example assumption
+        'Preferred_Investment_Type': Preferred_Investment_Type,  # Example assumption
         'Adjusted_DTI': debt_ratio / 100,
-        'Savings_Rate': savings / income if income > 0 else 0,
-        'Disposable_Income': income - (income * 0.4) - (income * 0.2),
+        'Savings_Rate': (income - expense - EMI_or_Rent_Amt) / income if income > 0 else 0,
+        'Disposable_Income': income - expense - EMI_or_Rent_Amt,
         'Debt_to_Income_Ratio': debt_ratio / 100
     }
     
