@@ -101,10 +101,7 @@ if st.sidebar.button("Generate Investment Plan"):
     expected_features = list(scaler.feature_names_in_)
     actual_features = X_input.columns.tolist()
 
-    # Debug print
-    st.write("✅ Expected Features from Scaler:", expected_features)
-    st.write("✅ Actual Features in X_input:", actual_features)
-
+    
     # Identify mismatches
     missing_features = [feat for feat in expected_features if feat not in actual_features]
     extra_features = [feat for feat in actual_features if feat not in expected_features]
@@ -138,7 +135,6 @@ if st.sidebar.button("Generate Investment Plan"):
 
         # Convert categorical feature to numeric
         X_input["Preferred_Investment_Type"] = X_input["Preferred_Investment_Type"].map(investment_type_mapping)
-
         # Check if encoding is successful
         if X_input["Preferred_Investment_Type"].isnull().any():
             st.error("❌ Error: 'Preferred_Investment_Type' contains invalid values.")
@@ -146,9 +142,7 @@ if st.sidebar.button("Generate Investment Plan"):
 
         # Now apply scaling
         X_input_scaled = scaler.transform(X_input)
-        st.success("✅ Data successfully scaled!")
-
-        st.success("✅ Data successfully scaled!")
+        
     except Exception as e:
         st.error(f"❌ Error during scaling: {e}")
         st.stop()
