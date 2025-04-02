@@ -11,7 +11,7 @@ import os
 def load_models():
     stage1_model = joblib.load("stage1_gbm.pkl")
     stage2_model = joblib.load("stage2_gbm.pkl")
-    
+    scaler = joblib.load("scaler.pkl")
     # Load the scaler if available
     scaler_path = "scaler.pkl"
     if os.path.exists(scaler_path):
@@ -103,8 +103,6 @@ if st.sidebar.button("Generate Investment Plan"):
     
     X_input = pd.DataFrame([user_data], columns=expected_features)
    
-    print("Scaler expects:", scaler.feature_names_in_)
-    print("X_input columns:", X_input.columns.tolist())
 
     if scaler:
         X_input_scaled = scaler.transform(X_input)
