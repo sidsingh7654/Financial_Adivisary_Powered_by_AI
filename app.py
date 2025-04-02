@@ -68,7 +68,8 @@ investment_horizon = st.sidebar.selectbox("Investment Horizon", ["Short", "Mediu
 risk_tolerance = st.sidebar.selectbox("Risk Tolerance", ["Low", "Medium", "High"])
 investment_experience = st.sidebar.selectbox("Investment Experience", ["Beginner", "Intermediate", "Advanced"])
 Preferred_Investment_Type = st.sidebar.selectbox("Preferred Investment Type", ["Equity", "Mutual Fund", "Debt", "Gold", "Real Estate"])
-
+# Auto-calculate Savings Amount
+savings = income - expense
 if st.sidebar.button("Generate Investment Plan"):
     expected_features = [
         'Mthly_HH_Income', 'Mthly_HH_Expense', 'Emi_or_Rent_Amt',
@@ -84,10 +85,10 @@ if st.sidebar.button("Generate Investment Plan"):
         'Mthly_HH_Expense': expense,  # Example assumption
         'Emi_or_Rent_Amt': EMI_or_Rent_Amt,  # Example assumption
         'No_of_Earning_Members': 2,  # Placeholder
-        'Savings_Amount': income - expense - EMI_or_Rent_Amt,  # Example assumption
-        'Investment_Horizon': investment_horizon,  # Example assumption
-        'Risk_Tolerance': risk_tolerance,  # Example assumption
-        'Investment_Experience': investment_experience,  # Example assumption
+        'Savings_Amount': savings,  # Example assumption
+        'Investment_Horizon': 5,  # Example assumption
+        'Risk_Tolerance': 3,  # Example assumption
+        'Investment_Experience': 2,  # Example assumption
         'Market_Volatility_Tolerance': 4,  # Example assumption
         'Short_Term_Goal': 1,
         'Mid_Term_Goal': 1,
@@ -95,7 +96,7 @@ if st.sidebar.button("Generate Investment Plan"):
         'Goal_Based_Investing': 1,
         'Preferred_Investment_Type': Preferred_Investment_Type,  # Example assumption
         'Adjusted_DTI': debt_ratio / 100,
-        'Savings_Rate': (income - expense - EMI_or_Rent_Amt) / income if income > 0 else 0,
+        'Savings_Rate': savings / income if income > 0 else 0,
         'Disposable_Income': income - expense - EMI_or_Rent_Amt,
         'Debt_to_Income_Ratio': debt_ratio / 100
     }
