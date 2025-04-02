@@ -127,9 +127,29 @@ if st.sidebar.button("Generate Investment Plan"):
 
     # Convert to NumPy and transform
     try:
+        # Define encoding mapping (Ensure this matches training data!)
+        investment_type_mapping = {
+            "Equity": 0,
+            "Mutual Fund": 1,
+            "Debt": 2,
+            "Gold": 3,
+            "Real Estate": 4
+        }
+
+        # Convert categorical feature to numeric
+        X_input["Preferred_Investment_Type"] = X_input["Preferred_Investment_Type"].map(investment_type_mapping)
+
+        # Check if encoding is successful
+        if X_input["Preferred_Investment_Type"].isnull().any():
+            st.error("❌ Error: 'Preferred_Investment_Type' contains invalid values.")
+            st.stop()
+
+        # Now apply scaling
         X_input_scaled = scaler.transform(X_input)
         st.success("✅ Data successfully scaled!")
-    except Exception as e:
+
+        st.success("✅ Data successfully scaled!")
+        except Exception as e:
         st.error(f"❌ Error during scaling: {e}")
         st.stop()
 
