@@ -118,6 +118,7 @@ debt_ratio = st.sidebar.slider("Debt-to-Income Ratio (%)", 0, 100, 30)
 investment_horizon = st.sidebar.selectbox("Investment Horizon", ["Short", "Medium", "Long"])
 risk_tolerance = st.sidebar.selectbox("Risk Tolerance", ["Low", "Medium", "High"])
 investment_experience = st.sidebar.selectbox("Investment Experience", ["Beginner", "Intermediate", "Advanced"])
+goal_based_investing = st.sidebar.selectbox("Goal Based Investing", ["Yes", "No"])
 Preferred_Investment_Type = st.sidebar.selectbox("Preferred Investment Type", ["Equity", "Mutual Fund", "Debt", "Gold", "Real Estate"])
 # Auto-calculate Savings Amount
 savings = income - expense
@@ -144,7 +145,7 @@ if st.sidebar.button("Generate Investment Plan"):
         'Short_Term_Goal': 1,
         'Mid_Term_Goal': 1,
         'Long_Term_Goal': 1,
-        'Goal_Based_Investing': 1,
+        'Goal_Based_Investing': 1 if goal_based_investing == "Yes" else 0,
         'Preferred_Investment_Type': Preferred_Investment_Type,  # Example assumption
         'Adjusted_DTI': debt_ratio / 100,
         'Savings_Rate': savings / income if income > 0 else 0,
