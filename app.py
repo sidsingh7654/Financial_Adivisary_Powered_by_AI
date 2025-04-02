@@ -136,9 +136,9 @@ if st.sidebar.button("Generate Investment Plan"):
         'Emi_or_Rent_Amt': EMI_or_Rent_Amt,  # Example assumption
         'No_of_Earning_Members': 2,  # Placeholder
         'Savings_Amount': savings,  # Example assumption
-        'Investment_Horizon': 5,  # Example assumption
-        'Risk_Tolerance': 3,  # Example assumption
-        'Investment_Experience': 2,  # Example assumption
+        'Investment_Horizon': investment_horizon,  # Example assumption
+        'Risk_Tolerance': risk_tolerance,  # Example assumption
+        'Investment_Experience': investment_experience,  # Example assumption
         'Market_Volatility_Tolerance': 4,  # Example assumption
         'Short_Term_Goal': 1,
         'Mid_Term_Goal': 1,
