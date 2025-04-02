@@ -189,13 +189,38 @@ if st.sidebar.button("Generate Investment Plan"):
             "Gold": 3,
             "Real Estate": 4
         }
+        investment_horizon_mapping = {
+            "Short": 0,
+            "Medium": 1,
+            "Long": 2
+        }
+
+        risk_tolerance_mapping = {
+            "Low": 0,
+            "Medium": 1,
+            "High": 2
+        }
+
+        investment_experience_mapping = {
+            "Beginner": 0,
+            "Intermediate": 1,
+            "Advanced": 2
+        }
+
 
         # Convert categorical feature to numeric
+        # Apply mappings to convert categorical values into numerical values
         X_input["Preferred_Investment_Type"] = X_input["Preferred_Investment_Type"].map(investment_type_mapping)
-        # Check if encoding is successful
-        if X_input["Preferred_Investment_Type"].isnull().any():
-            st.error("❌ Error: 'Preferred_Investment_Type' contains invalid values.")
-            st.stop()
+        X_input["Investment_Horizon"] = X_input["Investment_Horizon"].map(investment_horizon_mapping)
+        X_input["Risk_Tolerance"] = X_input["Risk_Tolerance"].map(risk_tolerance_mapping)
+        X_input["Investment_Experience"] = X_input["Investment_Experience"].map(investment_experience_mapping)
+
+        # Check if encoding is successful for all mapped columns
+        for col in ["Preferred_Investment_Type", "Investment_Horizon", "Risk_Tolerance", "Investment_Experience"]:
+            if X_input[col].isnull().any():
+                st.error(f"❌ Error: '{col}' contains invalid values.")
+                st.stop()
+
 
         # Now apply scaling
         X_input_scaled = scaler.transform(X_input)
