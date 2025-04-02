@@ -113,6 +113,7 @@ st.sidebar.header("User Financial Input")
 income = st.sidebar.number_input("Monthly Household Income (Rs.)", min_value=1000, step=100)
 expense = st.sidebar.number_input("Monthly Expense (Rs.)", min_value=100, step=50)
 EMI_or_Rent_Amt = st.sidebar.number_input("Monthly EMI/Rent Amount (Rs.)", min_value=0, step=50)    
+no_of_earning_members = st.sidebar.number_input("Number of Earning Members", min_value=1, step=1)
 debt_ratio = st.sidebar.slider("Debt-to-Income Ratio (%)", 0, 100, 30)
 investment_horizon = st.sidebar.selectbox("Investment Horizon", ["Short", "Medium", "Long"])
 risk_tolerance = st.sidebar.selectbox("Risk Tolerance", ["Low", "Medium", "High"])
@@ -134,7 +135,7 @@ if st.sidebar.button("Generate Investment Plan"):
         'Mthly_HH_Income': income,
         'Mthly_HH_Expense': expense,  # Example assumption
         'Emi_or_Rent_Amt': EMI_or_Rent_Amt,  # Example assumption
-        'No_of_Earning_Members': 2,  # Placeholder
+        'No_of_Earning_Members': no_of_earning_members,  # Placeholder
         'Savings_Amount': savings,  # Example assumption
         'Investment_Horizon': investment_horizon,  # Example assumption
         'Risk_Tolerance': risk_tolerance,  # Example assumption
