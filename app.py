@@ -17,40 +17,57 @@ def load_models():
 
 stage1_model, stage2_model, scaler = load_models()
 
-def get_random_stocks(n=5):
-    # Fetch a large stock list (e.g., NIFTY 500 stocks)
+def get_random_stocks(n=5, risk_tolerance="Medium", investment_experience="Intermediate", investment_type="Equity"):
+    # Sample stock universe with risk levels
     stock_universe = [
-        "TATAMOTORS.NS", "ITC.NS", "MARUTI.NS", "INFY.NS", "RELIANCE.NS", 
-        "HDFCBANK.NS", "TCS.NS", "BAJFINANCE.NS", "WIPRO.NS", "HINDUNILVR.NS"
+        {"ticker": "RELIANCE.NS", "risk": "High"},
+        {"ticker": "INFY.NS", "risk": "Medium"},
+        {"ticker": "TCS.NS", "risk": "Medium"},
+        {"ticker": "HDFCBANK.NS", "risk": "Low"},
+        {"ticker": "BAJFINANCE.NS", "risk": "High"},
+        {"ticker": "TATAMOTORS.NS", "risk": "High"},
+        {"ticker": "ITC.NS", "risk": "Low"},
+        {"ticker": "MARUTI.NS", "risk": "Medium"},
+        {"ticker": "WIPRO.NS", "risk": "Low"},
+        {"ticker": "HINDUNILVR.NS", "risk": "Low"}
     ]
-    
-    # Randomly select N stocks
-    selected_stocks = random.sample(stock_universe, min(n, len(stock_universe)))
-    
+
+    # Filter stocks based on risk tolerance
+    filtered_stocks = [s for s in stock_universe if s["risk"] == risk_tolerance]
+
+    # If not enough stocks match the criteria, expand the selection
+    if len(filtered_stocks) < n:
+        filtered_stocks = stock_universe  # Use all stocks as fallback
+
+    # Select random stocks
+    selected_stocks = random.sample(filtered_stocks, min(n, len(filtered_stocks)))
+
     stock_data = []
     
-    for ticker in selected_stocks:
+    for stock_info in selected_stocks:
+        ticker = stock_info["ticker"]
         try:
             stock = yf.Ticker(ticker)
-            hist = stock.history(period="1mo")  # Fetching last month's data
-            
+            hist = stock.history(period="1mo")
+
             if not hist.empty:
-                last_close = hist["Close"].iloc[-1]  # Last closing price
-                pe_ratio = stock.info.get("forwardPE", None)  # P/E ratio
-                beta = stock.info.get("beta", None)  # Beta value
-                
+                last_close = hist["Close"].iloc[-1]
+                pe_ratio = stock.info.get("forwardPE", None)
+                beta = stock.info.get("beta", None)
+
                 stock_data.append({
                     "Product_Name": stock.info.get("longName", ticker),
                     "Last_Close_Price (Rs.)": round(last_close, 2),
                     "Expected_Return (%)": round(pe_ratio, 2) if pe_ratio else "N/A",
-                    "Risk_Level": "High" if beta and beta > 1 else "Medium",
+                    "Risk_Level": stock_info["risk"],
                     "Volatility_Level": "High" if beta and beta > 1 else "Medium"
                 })
-        
+
         except Exception as e:
             print(f"⚠️ Error fetching data for {ticker}: {e}")
 
     return pd.DataFrame(stock_data)
+
 def get_mutual_fund_data():
     response = requests.get("https://www.amfiindia.com/spages/NAVAll.txt")
     data = response.text
@@ -177,7 +194,8 @@ if st.sidebar.button("Generate Investment Plan"):
     
     st.subheader("📈 Recommended Stocks")
 
-    stocks_df = get_random_stocks(n=5)
+    sstocks_df = get_random_stocks(n=5, risk_tolerance="High", investment_experience="Advanced", investment_type="Equity")
+
 
     mf_df = get_mutual_fund_data()
     st.write("Fetched Stock Data:", stocks_df)
