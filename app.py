@@ -273,5 +273,3 @@ print(recommend_products('Mutual Fund', customer_info['MutualFund_Allocation'], 
 
 print("\n🟢 Recommended Debt Instruments:")
 print(recommend_products('Debt', customer_info['Debt_Allocation'], customer_info))
-
-pip install streamlit yfinance pandas scikit-learn joblib requests beautifulsoup4
