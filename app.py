@@ -120,13 +120,12 @@ if st.sidebar.button("Generate Investment Plan"):
     stocks_df = get_stock_data()
 
     mf_df = get_mutual_fund_data()
+    st.write("Fetched Stock Data:", stocks_df)
     st.write("Fetched Mutual Fund Data:", mf_df)
     recommended_stocks = recommend_products(stocks_df, allocation[0], risk_tolerance)
     st.write("Recommended Stocks:", recommended_stocks)
     recommended_mf = recommend_products(mf_df, allocation[2], risk_tolerance)
     st.write("Recommended Mutual Funds:", recommended_mf)
-    st.dataframe(recommend_products(stocks_df, allocation[0], risk_tolerance))
     
-    st.subheader("📊 Recommended Mutual Funds")
-    mf_df = get_mutual_fund_data()
-    st.dataframe(recommend_products(mf_df, allocation[2], risk_tolerance))
+    
+    
