@@ -58,6 +58,8 @@ investment_experience = st.sidebar.selectbox("Investment Experience", ["Beginner
 
 if st.sidebar.button("Generate Investment Plan"):
     X_input = np.array([[income, savings, debt_ratio]])  # Placeholder
+    print("Model expects:", stage1_model.n_features_in_)  # Prints the expected number of features
+    print("X_input shape:", X_input.shape)  # Prints the actual input shape
     invest_percentage = stage1_model.predict(X_input)[0]
     allocation = stage2_model.predict(X_input)[0]
     
