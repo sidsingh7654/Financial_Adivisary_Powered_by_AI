@@ -97,15 +97,42 @@ if st.sidebar.button("Generate Investment Plan"):
     X_input = pd.DataFrame([user_data], columns=expected_features)
    
 
-    expected_features = scaler.feature_names_in_  # Get the correct feature order
-    X_input = X_input[expected_features]  # Reorder columns
-    print("\n📝 X_input DataFrame before scaling:\n", X_input)
-    print("\n📌 Data Types:\n", X_input.dtypes)
-    print("\n🔍 Any NaN values?:\n", X_input.isnull().sum())
+    # Check expected vs actual features
+    expected_features = list(scaler.feature_names_in_)
+    actual_features = X_input.columns.tolist()
 
-    # Transform input using the scaler
-    X_input_scaled = scaler.transform(X_input)
-    
+    # Debug print
+    st.write("✅ Expected Features from Scaler:", expected_features)
+    st.write("✅ Actual Features in X_input:", actual_features)
+
+    # Identify mismatches
+    missing_features = [feat for feat in expected_features if feat not in actual_features]
+    extra_features = [feat for feat in actual_features if feat not in expected_features]
+
+    if missing_features:
+        st.error(f"❌ Missing Features in X_input: {missing_features}")
+        st.stop()
+
+    if extra_features:
+        st.warning(f"⚠️ Extra Features in X_input: {extra_features}")
+        X_input = X_input.drop(columns=extra_features)  # Remove extra features
+
+    # Ensure columns are in correct order
+    X_input = X_input[expected_features]
+
+    # Check for NaN values
+    if X_input.isnull().values.any():
+        st.error(f"❌ Found NaN values in input data: {X_input.isnull().sum()}")
+        st.stop()
+
+    # Convert to NumPy and transform
+    try:
+        X_input_scaled = scaler.transform(X_input)
+        st.success("✅ Data successfully scaled!")
+    except Exception as e:
+        st.error(f"❌ Error during scaling: {e}")
+        st.stop()
+
     invest_percentage = stage1_model.predict(X_input_scaled)[0]
     allocation = stage2_model.predict(X_input_scaled)[0]
     
