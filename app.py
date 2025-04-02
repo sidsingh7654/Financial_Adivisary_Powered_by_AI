@@ -8,6 +8,14 @@ Original file is located at
 
 # STAGE 1
 """
+import subprocess
+import sys
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "matplotlib"])
+    import matplotlib.pyplot as plt
 
 # Step 1: Import libraries
 import pandas as pd
