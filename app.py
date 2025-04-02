@@ -103,7 +103,9 @@ if st.sidebar.button("Generate Investment Plan"):
     
     X_input = pd.DataFrame([user_data], columns=expected_features)
    
-    
+    print("Scaler expects:", scaler.feature_names_in_)
+    print("X_input columns:", X_input.columns.tolist())
+
     if scaler:
         X_input_scaled = scaler.transform(X_input)
     else:
