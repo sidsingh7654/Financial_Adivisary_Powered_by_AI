@@ -99,9 +99,11 @@ if st.sidebar.button("Generate Investment Plan"):
     }
     
     X_input = pd.DataFrame([user_data], columns=expected_features)
-    
+    st.write("User Input Data (Before Scaling):", X_input)
+
     if scaler:
         X_input_scaled = scaler.transform(X_input)
+        st.write("User Input Data (After Scaling):", X_input_scaled)
     else:
         st.error("Scaler is missing. Please retrain and save it.")
         X_input_scaled = X_input  # Fallback to raw data
@@ -110,11 +112,20 @@ if st.sidebar.button("Generate Investment Plan"):
     allocation = stage2_model.predict(X_input_scaled)[0]
     
     st.subheader("📌 Investment Allocation")
+    
     st.write(f"Recommended Investment: {invest_percentage:.2f}% of Savings")
     st.write(f"Equity: {allocation[0]:.2f}%, Debt: {allocation[1]:.2f}%, Mutual Fund: {allocation[2]:.2f}%")
     
     st.subheader("📈 Recommended Stocks")
+
     stocks_df = get_stock_data()
+
+    mf_df = get_mutual_fund_data()
+    st.write("Fetched Mutual Fund Data:", mf_df)
+    recommended_stocks = recommend_products(stocks_df, allocation[0], risk_tolerance)
+    st.write("Recommended Stocks:", recommended_stocks)
+    recommended_mf = recommend_products(mf_df, allocation[2], risk_tolerance)
+    st.write("Recommended Mutual Funds:", recommended_mf)
     st.dataframe(recommend_products(stocks_df, allocation[0], risk_tolerance))
     
     st.subheader("📊 Recommended Mutual Funds")
