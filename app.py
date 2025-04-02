@@ -173,7 +173,6 @@ joblib.dump(stage2_model, "stage2_gbm.pkl")
 
 """
 
-pip install yfinance pandas beautifulsoup4 requests
 
 import yfinance as yf
 import pandas as pd
