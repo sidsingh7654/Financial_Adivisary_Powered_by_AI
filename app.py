@@ -57,9 +57,27 @@ risk_tolerance = st.sidebar.selectbox("Risk Tolerance", ["Low", "Medium", "High"
 investment_experience = st.sidebar.selectbox("Investment Experience", ["Beginner", "Intermediate", "Advanced"])
 
 if st.sidebar.button("Generate Investment Plan"):
-    X_input = np.array([[income, savings, debt_ratio]])  # Placeholder
-    print("Model expects:", stage1_model.n_features_in_)  # Prints the expected number of features
-    print("X_input shape:", X_input.shape)  # Prints the actual input shape
+    # Ensure `X_input` has the correct feature names and order
+    expected_features = [
+        'Mthly_HH_Income', 'Mthly_HH_Expense', 'Emi_or_Rent_Amt',
+        'No_of_Earning_Members', 'Savings_Amount', 'Investment_Horizon',
+        'Risk_Tolerance', 'Investment_Experience', 'Market_Volatility_Tolerance',
+        'Short_Term_Goal', 'Mid_Term_Goal', 'Long_Term_Goal', 'Goal_Based_Investing',
+        'Preferred_Investment_Type', 'Adjusted_DTI', 'Savings_Rate', 
+        'Disposable_Income', 'Debt_to_Income_Ratio'
+    ]
+
+    # Convert user input into a DataFrame with correct columns
+    X_input = pd.DataFrame([user_data], columns=expected_features)
+
+    # Apply Min-Max Scaling (use the same scaler from training)
+    X_input_scaled = scaler.transform(X_input)
+
+    # Debugging: Print input shape & features
+    print("Model expects:", stage1_model.n_features_in_)  # Expected feature count
+    print("Input shape:", X_input_scaled.shape)  # Actual input shape
+    print("Missing columns:", set(expected_features) - set(X_input.columns))
+    print("Extra columns:", set(X_input.columns) - set(expected_features))
     invest_percentage = stage1_model.predict(X_input)[0]
     allocation = stage2_model.predict(X_input)[0]
     
